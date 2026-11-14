@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+
+# 数据与产出（不随仓库）
+/artifacts/
+/results/
+*.npz
+*.pt
+*.log
+
+# IDE
+.idea/
+.vscode/
