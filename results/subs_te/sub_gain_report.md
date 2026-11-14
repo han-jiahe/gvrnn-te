@@ -61,3 +61,5 @@ $$\Psi_A(VI) := I(VI_t; VI_{t'}) - \sum_{i \in S} I(A_t^i; VI_{t'})$$
 - **图 4 · Ψ_A 瀑布**：I(VI_t;VI_{t'}) − Σ_{i∈S} I(A^i_t;VI_{t'}) 的减法分解（P1/P2 两面板，nats），虚线 = Ψ_uncond 对照
 
   ![sub4 Ψ_A 瀑布](figures/sub4_psi_waterfall.png)
+
+（四张图的汇总版见 [pipeline_report.md](pipeline_report.md)）

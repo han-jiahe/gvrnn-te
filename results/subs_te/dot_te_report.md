@@ -118,3 +118,5 @@
 - **图 3 · 成对散点**：42 有效对 TE_eff vs 源在场分钟（短窗区 t_p < 10 min 灰底标注；Smith 6.95 min 的 eff 虚高须存疑）
 
   ![sub3 成对散点](figures/sub3_pair_scatter.png)
+
+（四张图的汇总版见 [pipeline_report.md](pipeline_report.md)）
