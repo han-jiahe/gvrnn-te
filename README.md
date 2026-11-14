@@ -30,6 +30,7 @@ dotTE(p)  = (1 / t_p) · Σ_q TE_eff(p → q)             （对共同在场队�
 | `phase_te.py` | 球员潜链 ↔ 比赛阶段链双向 TE（离散 plug-in + 块置换代理 + BH-FDR） |
 | `latent_pair_te.py` | 10 Hz 同协议球员↔球员潜链 TE（量级对照） |
 | `te_scale_compare.py` | 三族 TE（潜链↔潜链 / 潜链↔阶段 / VI↔球员）统一尺度对照报告 |
+| `results/subs_te/` | **dotTE/Ψ_A 管线实验的结果与分析**（`dot_te_report.md`、`sub_gain_report.md`、`dot_te.csv`、`subs_te_summary.json`，随仓库发布） |
 | `tests/` | pytest 用例（全部合成数据，`python -m pytest tests/ -q`） |
 | `docs/` | 方法学文档与图 |
 
@@ -89,7 +90,9 @@ python -m te_emergence.sub_gain \
     --out results/subs_te/sub_gain_report.md
 ```
 
-产出物（`artifacts/`、`results/`）已加入 `.gitignore`，不上传仓库。
+产出物中，模型与中间数据（`artifacts/`、`results/` 其余部分）已加入 `.gitignore`，
+不上传仓库；**第 5–7 步的结果与分析**（`results/subs_te/`：`dot_te_report.md`、
+`sub_gain_report.md`、`dot_te.csv`、`subs_te_summary.json`）**随仓库发布**。
 
 ## 测试
 

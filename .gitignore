@@ -9,6 +9,10 @@ dist/
 # 数据与产出（不随仓库）
 /artifacts/
 /results/
+!/results/
+/results/*
+# 例外：dotTE/Ψ_A 管线实验的结果与分析随仓库发布
+!/results/subs_te/
 *.npz
 *.pt
 *.log
