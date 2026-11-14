@@ -106,3 +106,15 @@
   `均值口径` = (Σeff/目标数)/t_p，消目标数差异的敏感性口径。
 - `t_p`：跟踪口径在场分钟（live 帧/600）；比赛时钟分钟略长（含丢帧死球段）。
 - `skipped`：两球员无共同在场窗口（n=0），不参与 dotTE。
+
+## 6. 结果可视化
+
+（由 `te_emergence/sub_figures.py` 生成，`results/subs_te/figures/`，与 `te_emergence/figures` 同一设计系统）
+
+- **图 2 · dotTE 哑铃**：3 个换人对，替补（橙）vs 被替补（蓝）dotTE（bits/min），箭头指向更大者
+
+  ![sub2 dotTE 哑铃](figures/sub2_dot_te_dumbbell.png)
+
+- **图 3 · 成对散点**：42 有效对 TE_eff vs 源在场分钟（短窗区 t_p < 10 min 灰底标注；Smith 6.95 min 的 eff 虚高须存疑）
+
+  ![sub3 成对散点](figures/sub3_pair_scatter.png)

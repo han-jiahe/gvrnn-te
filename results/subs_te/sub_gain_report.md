@@ -49,3 +49,15 @@ $$\Psi_A(VI) := I(VI_t; VI_{t'}) - \sum_{i \in S} I(A_t^i; VI_{t'})$$
 - `Ψ_uncond`：全量口径涌现 = i_macro − Σ_{10 人} MI（vi 项目 Task 2）。
 - `Ψ_A(VI)`：协议口径 = i_macro − Σ_{i∈S} MI。
 - 单位：nats（×1.4427 → bits）。
+
+## 6. 结果可视化
+
+（由 `te_emergence/sub_figures.py` 生成，`results/subs_te/figures/`，与 `te_emergence/figures` 同一设计系统）
+
+- **图 1 · 涌现平面**：Ψ_A（主口径，蓝）与 Ψ_uncond（全量对照，灰）对 I(VI_t;VI_{t'})，P1/P2 两半场，虚线跨度 = Σ_S I(A^i;VI′)
+
+  ![sub1 涌现平面](figures/sub1_emergence_plane.png)
+
+- **图 4 · Ψ_A 瀑布**：I(VI_t;VI_{t'}) − Σ_{i∈S} I(A^i_t;VI_{t'}) 的减法分解（P1/P2 两面板，nats），虚线 = Ψ_uncond 对照
+
+  ![sub4 Ψ_A 瀑布](figures/sub4_psi_waterfall.png)

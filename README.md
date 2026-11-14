@@ -1,14 +1,34 @@
-# gvrnn-te —— GVRNN 潜链提取 · 成对/替补转移熵 · 因果涌现桥接
+<div align="center">
 
-从 SkillCorner 足球轨迹数据中，用 **GVRNN（Yeh et al., CVPR 2019）** 提取每名
-球员的潜动力学链，计算球员间的**成对转移熵**（含替补/被替补球员的 dotTE），
-并与 **VI 因果涌现**（Rosas 2020 下行因果框架）桥接为一个完整项目：
+<h1>⚽ gvrnn-te —— GVRNN 潜链 · 替补 dotTE · Ψ_A(VI) 因果涌现</h1>
 
-```
-TE(A → B) = I( z^A_{t-1} ; z^B_t | z^B_{t-1} )        （成对，仅条件于 B 自身历史）
-dotTE(p)  = (1 / t_p) · Σ_q TE_eff(p → q)             （对共同在场队友求和 ÷ 在场分钟）
-Ψ_A(VI)   = I(VI_t; VI_{t'}) − Σ_{i∈S} I(A^i_t; VI_{t'})   （S = TE 胜过首发的替补）
-```
+<p>
+  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.10+-blue" alt="Python 3.10+"></a>
+  <a href="https://pytorch.org/"><img src="https://img.shields.io/badge/PyTorch-2.0+-orange" alt="PyTorch 2.0+"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green" alt="License: MIT"></a>
+  <a href="https://github.com/SkillCorner/opendata"><img src="https://img.shields.io/badge/Data-SkillCorner%20opendata-lightgrey" alt="Data: SkillCorner opendata"></a>
+</p>
+
+</div>
+
+> **Version**: 0.2.0
+> **Goal**: 从 SkillCorner 足球轨迹中提取 GVRNN 球员潜链，计算替补/被替补球员的
+> dotTE（成对转移熵），并桥接 VI 因果涌现的 Ψ_A(VI) 下行指标——形成
+> 「潜链 → 信息流 → 宏观涌现」的完整管线。
+
+## 📖 Introduction
+
+1. **潜链提取**：GVRNN（Yeh et al., CVPR 2019）逐球员潜动力学 z_t（32 维 · 10 Hz），
+   单模型单潜空间保证跨球员可比（`gvrnn/`、`data_loading.py`）。
+2. **成对转移熵**：TE(A→B) = I(z^A_{t−1}; z^B_t | z^B_{t−1})——高斯闭式 / KSG /
+   离散 plug-in 三估计器 + 200 次块置换代理 + BH-FDR（`mte/`、`run_player_mte.py`）。
+3. **替补 dotTE**：dotTE(p) = Σ_q TE_eff(p→q)/t_p，S = {dotTE 胜过被替补的替补}
+   （协议 §15，`run_subs_te.py`）。
+4. **Ψ_A(VI) 桥接**：Ψ_A = I(VI_t;VI_{t'}) − Σ_{i∈S} I(A^i_t;VI_{t'})，MI 直接取自
+   vi-te 产出、本仓库只做减法（`te_emergence/sub_gain.py`）。
+5. **研究产出**：m2 实验（比赛 1886347 · Auckland 主队）——`dot_te.csv`、
+   `dot_te_report.md`、`sub_gain_report.md`、4 张管线结果图
+   （`results/subs_te/figures/`）、协议流程图（PROTOCOL.md §15）。
 
 - 方法学协议见 [PROTOCOL.md](PROTOCOL.md)（估计器、代理检验、守卫、§15 dotTE）
 - 高斯 TE 闭式推导见 [docs/te_gaussian_explained.md](docs/te_gaussian_explained.md)
@@ -20,7 +40,7 @@ dotTE(p)  = (1 / t_p) · Σ_q TE_eff(p → q)             （对共同在场队�
 |---|---|
 | `gvrnn/` | GVRNN 模型（train / extract / model） |
 | `mte/` | 成对 TE 估计器栈（gaussian 闭式 / KSG / 离散 + 代理显著性 + BH-FDR） |
-| `te_emergence/` | 因果涌现计算与应用层（pool / figures / diagrams / latent / report / sub_gain） |
+| `te_emergence/` | 因果涌现计算与应用层（pool / figures / diagrams / latent / report / sub_gain / sub_figures） |
 | `config.py` | 全部可调参数（潜维度、stride、k、代理数等）的唯一事实源 |
 | `data_loading.py` | SkillCorner 轨迹 → GVRNN npz 导出（含 `--player-ids` 定制节点集） |
 | `run_player_mte.py` | 球员间成对 TE 全量计算 |
@@ -30,7 +50,7 @@ dotTE(p)  = (1 / t_p) · Σ_q TE_eff(p → q)             （对共同在场队�
 | `phase_te.py` | 球员潜链 ↔ 比赛阶段链双向 TE（离散 plug-in + 块置换代理 + BH-FDR） |
 | `latent_pair_te.py` | 10 Hz 同协议球员↔球员潜链 TE（量级对照） |
 | `te_scale_compare.py` | 三族 TE（潜链↔潜链 / 潜链↔阶段 / VI↔球员）统一尺度对照报告 |
-| `results/subs_te/` | **dotTE/Ψ_A 管线实验的结果与分析**（`dot_te_report.md`、`sub_gain_report.md`、`dot_te.csv`、`subs_te_summary.json`，随仓库发布） |
+| `results/subs_te/` | **dotTE/Ψ_A 管线实验的结果与分析**（`dot_te_report.md`、`sub_gain_report.md`、`dot_te.csv`、`subs_te_summary.json`、`figures/` 4 张管线结果图，随仓库发布） |
 | `tests/` | pytest 用例（全部合成数据，`python -m pytest tests/ -q`） |
 | `docs/` | 方法学文档与图 |
 
@@ -88,11 +108,19 @@ python -m te_emergence.sub_gain \
     --vi-json results/vi_te_1886347.json \
     --subs-summary results/subs_te/subs_te_summary.json \
     --out results/subs_te/sub_gain_report.md
+
+# 8. 管线结果图（sub1–sub4，输出 results/subs_te/figures/）
+python -m te_emergence.sub_figures \
+    --dot-te results/subs_te/dot_te.csv \
+    --summary results/subs_te/subs_te_summary.json \
+    --vi-json results/vi_te_1886347.json \
+    --out-dir results/subs_te/figures
 ```
 
 产出物中，模型与中间数据（`artifacts/`、`results/` 其余部分）已加入 `.gitignore`，
-不上传仓库；**第 5–7 步的结果与分析**（`results/subs_te/`：`dot_te_report.md`、
-`sub_gain_report.md`、`dot_te.csv`、`subs_te_summary.json`）**随仓库发布**。
+不上传仓库；**第 5–8 步的结果与分析**（`results/subs_te/`：`dot_te_report.md`、
+`sub_gain_report.md`、`dot_te.csv`、`subs_te_summary.json`、`figures/` 4 张图）
+**随仓库发布**。
 
 ## 测试
 

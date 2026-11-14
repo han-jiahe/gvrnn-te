@@ -231,7 +231,8 @@ p=0.005（eff ≈ 0.003–0.006 bits），z→phi 全口径 8/8 显著（live_on
 10 Hz 转移（两端 live、帧连续、同半场），离散 plug-in TE，200 次块置换代理（块 25），
 eff = raw − 代理均值，p 地板 1/201，BH-FDR（q=0.05）跨对族。输出
 `results/subs_te/`：dot_te.csv（每对一行 + skipped 标注）、subs_te_summary.json
-（每源 dotTE / 差值 / S）、dot_te_report.md、sub_gain_report.md。
+（每源 dotTE / 差值 / S）、dot_te_report.md、sub_gain_report.md；4 张管线结果图
+（sub1–sub4）由 `te_emergence/sub_figures.py` 生成于 `results/subs_te/figures/`。
 
 **已知限制**：目标数物理上不等（共同在场约束，6–8 个/源）→ 报均值口径作敏感性；
 t_p 为跟踪口径分钟（比赛时钟略长，含丢帧死球段）；短窗（Smith ≈ 7 跟踪分钟）
