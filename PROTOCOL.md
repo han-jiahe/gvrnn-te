@@ -236,3 +236,23 @@ eff = raw − 代理均值，p 地板 1/201，BH-FDR（q=0.05）跨对族。输�
 **已知限制**：目标数物理上不等（共同在场约束，6–8 个/源）→ 报均值口径作敏感性；
 t_p 为跟踪口径分钟（比赛时钟略长，含丢帧死球段）；短窗（Smith ≈ 7 跟踪分钟）
 代理偏差按列报告；TE≠因果，见 §12。
+
+**管线流程图**（Mermaid；GitHub / VS Code + Mermaid 插件可直接渲染）：
+
+```mermaid
+flowchart TD
+  A["SkillCorner opendata<br/>1886347 · 主队 Auckland 4177"] --> B["data_loading.py（--player-ids）<br/>m2：4 全勤 + 6 轮换 + 球 = 11 节点<br/>tracking_m2.npz + live_mask"]
+  B --> C["gvrnn.train（GPU ≈8 min）<br/>best_model.pt（val NLL ≈ −9.95）"]
+  C --> D["gvrnn.extract<br/>latents.npz：z_post (43458, 11, 32)"]
+  D --> E["run_subs_te.py"]
+  E --> E1["逐球员冻结 K-means<br/>（K=8 · z-score · seed 42）"]
+  E --> E2["pair_mask：共同在场窗口<br/>（两端 live · 帧连续 · 同半场）"]
+  E1 --> F["54 有序对 TE（排除自己 + 换人伙伴）<br/>离散 plug-in · 200 块置换代理（块 25）· BH-FDR<br/>skipped：无共同在场 6 对"]
+  E2 --> F
+  F --> G["dotTE(p) = Σ_q TE_eff(p→q) / t_p<br/>t_p = live 帧数 / 600（跟踪分钟）"]
+  G --> H{"S：dotTE(替补) − dotTE(首发) > 0 的替补<br/>43829 · 163972 · 31147 三名全胜"}
+  G --> K["dot_te.csv · subs_te_summary.json · dot_te_report.md"]
+  H --> I["te_emergence/sub_gain.py<br/>MI 直接取 vi_te_1886347.json（不复算）"]
+  I --> J["Ψ_A(VI) = I(VI_t;VI_{t'}) − Σ_{i∈S} I(A_t^i;VI_{t'})<br/>P1 = 0.010953 · P2 = −0.002459 nats<br/>对照 Ψ_uncond：P2 = −0.042334"]
+  J --> L["sub_gain_report.md"]
+```

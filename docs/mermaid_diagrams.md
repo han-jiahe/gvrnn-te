@@ -115,3 +115,10 @@ flowchart TD
   T5 --> C
   T6 --> C
 ```
+
+---
+
+## 图 10 · dotTE 替补信息增益管线（m2 → Ψ_A(VI)）
+
+dotTE / 替补信息增益 / Ψ_A(VI) 的完整管线流程图（GVRNN 计算协议口径，含 S 判定与
+结果数值）见 `PROTOCOL.md` §15「管线流程图」（mermaid 源图，GitHub 直接渲染）。
