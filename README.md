@@ -1,6 +1,6 @@
 <div align="center">
 
-<h1>⚽ gvrnn-te —— 面向替补球员基于GVRNN潜链提取技术的信息增益研究及其与宏观动态程度的因果涌现验证</h1>
+<h1>⚽ gvrnn-te —— 面向替补球员基于GVRNN潜链映射HMM的信息增益研究及其与宏观动态程度的因果涌现验证</h1>
 
 <p>
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.10+-blue" alt="Python 3.10+"></a>
@@ -18,19 +18,19 @@
 
 ## 📖 Introduction
 
-1. **潜链提取**：GVRNN（Yeh et al., CVPR 2019）逐球员潜动力学 z_t（32 维 · 10 Hz），
+1. **潜链提取**：GVRNN（Yeh et al., CVPR 2019）逐球员潜动力学 ${z_t}$（32 维 · 10 Hz），
    单模型单潜空间保证跨球员可比（`gvrnn/`、`data_loading.py`）。
-2. **成对转移熵**：TE(A→B) = I(z^A_{t−1}; z^B_t | z^B_{t−1})——高斯闭式 / KSG /
+2. **成对转移熵**：$TE(A→B) = I({{z^A}_{t−1}}; {{z^B}_t} | {{z^B}_{t−1}})$——高斯闭式 / KSG /
    离散 plug-in 三估计器 + 200 次块置换代理 + BH-FDR（`mte/`、`run_player_mte.py`）。
-3. **替补 dotTE**：dotTE(p) = Σ_q TE_eff(p→q)/t_p，S = {dotTE 胜过被替补的替补}
-   （协议 §15，`run_subs_te.py`）。
-4. **Ψ_A(VI) 桥接**：Ψ_A = I(VI_t;VI_{t'}) − Σ_{i∈S} I(A^i_t;VI_{t'})，MI 直接取自
+3.  **替补 dotTE** ：
+$$\dot{TE}(p) = \sum_{q} \frac{TE_{\mathrm{eff}}(p \to q)}{t_p}$$，S = {$\dot{TE}$ 胜过被替补的替补}（协议 §15，`run_subs_te.py`）。
+4.  **Ψ_A(VI) 桥接** ：$\Psi_A = I(VI_t;\, VI_{t'}) - \sum_{i \in S} I(A^i_t;\, VI_{t'})$，MI 直接取自
    vi-te 产出、本仓库只做减法（`te_emergence/sub_gain.py`）。
 5. **研究产出**：m2 实验（比赛 1886347 · Auckland 主队）——`dot_te.csv`、
    `dot_te_report.md`、`sub_gain_report.md`、4 张管线结果图
    （`results/subs_te/figures/`）、协议流程图（PROTOCOL.md §15）。
 
-- 方法学协议见 [PROTOCOL.md](PROTOCOL.md)（估计器、代理检验、守卫、§15 dotTE）
+- 方法学协议见 [PROTOCOL.md](PROTOCOL.md)（估计器、代理检验、守卫、$\dot{TE}$）
 - 高斯 TE 闭式推导见 [docs/te_gaussian_explained.md](docs/te_gaussian_explained.md)
 - VI 桥接的 10 场成果报告由 `te_emergence/report.py` 生成（`results/vi_te_report.md`）
 
