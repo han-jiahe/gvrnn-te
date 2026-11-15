@@ -1,6 +1,6 @@
 <div align="center">
 
-<h1>⚽ gvrnn-te —— GVRNN 潜链 · 替补 dotTE · Ψ_A(VI) 因果涌现</h1>
+<h1>⚽ gvrnn-te —— 面向替补球员基于GVRNN潜链提取技术的信息增益研究及其与宏观动态程度的因果涌现验证</h1>
 
 <p>
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.10+-blue" alt="Python 3.10+"></a>
@@ -13,7 +13,7 @@
 
 > **Version**: 0.2.0
 > **Goal**: 从 SkillCorner 足球轨迹中提取 GVRNN 球员潜链，计算替补/被替补球员的
-> dotTE（成对转移熵），并桥接 VI 因果涌现的 Ψ_A(VI) 下行指标——形成
+> $\dot{TE}$（带权成对转移熵），并桥接 $\dot{VI}$ 因果涌现的 ${{\psi }_{A}}(VI)$ 下行指标——形成
 > 「潜链 → 信息流 → 宏观涌现」的完整管线。
 
 ## 📖 Introduction
