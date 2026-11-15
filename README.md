@@ -1,6 +1,6 @@
 <div align="center">
 
-<h1>⚽ gvrnn-te —— 面向替补球员基于GVRNN潜链映射HMM的信息增益研究及其与宏观动态程度的因果涌现验证</h1>
+<h1>⚽ gvrnn-te —— 基于GVRNN映射HMM面向替补/被替补球员的信息增益研究及其与宏观动态程度的因果涌现验证</h1>
 
 <p>
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.10+-blue" alt="Python 3.10+"></a>
