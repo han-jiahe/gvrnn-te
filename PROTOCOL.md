@@ -206,14 +206,16 @@ p=0.005（eff ≈ 0.003–0.006 bits），z→phi 全口径 8/8 显著（live_on
 
 > 术语：**带权成对转移熵**（weighted pairwise transfer entropy）即「成对 TE 之和 ÷ 在场时间」，
 > 记为 $\dot{TE}$ ；代码与结果文件沿用标识 `dotTE`（如 `dot_te.csv`、`--dot-te`、`dot_te_report.md`）。
+> 宏观涌现变量为**信息变差率** $\dot{VI}$ （逐样本 Variation of Information，Pereira et al. 2021），
+> vi-te 数据文件中记作 `VI`（i_macro / per_player_mi 字段）。
 
 **协议口径**（依据 GVRNN计算协议.txt）：
 - 带权成对转移熵 $\dot{TE}(p) = \frac{1}{t_p}\sum_q TE_{\mathrm{eff}}(p \to q)$ ，其中 $t_p$ 为 p 的在场**跟踪**分钟（live 帧数 / 600）。
 - 目标集 = 模型内其余外场节点，**排除自己与换人伙伴**；无共同在场时段的对（n=0）
   标记 `skipped`、不进求和。
 - $S = \{ \text{sub}\ p : \dot{TE}(p) > \dot{TE}(\text{starter}(p)) \}$ ，`sub` 为替补、`starter` 为被其替换的首发。
-- $\Psi_A(VI) := I(VI_t;\, VI_{t'}) - \sum_{i \in S} I(A^i_t;\, VI_{t'})$ （`te_emergence/sub_gain.py`）：
-  $I(VI_t; VI_{t'})$ 与每球员 $I(A^i_t; VI_{t'})$ 直接取自 vi-te 的 vi_te_<match>.json
+- $\Psi_A(\dot{VI}) := I(\dot{VI}_t;\, \dot{VI}_{t'}) - \sum_{i \in S} I(A^i_t;\, \dot{VI}_{t'})$ （`te_emergence/sub_gain.py`）：
+  $I(\dot{VI}_t; \dot{VI}_{t'})$ 与每球员 $I(A^i_t; \dot{VI}_{t'})$ 直接取自 vi-te 的 vi_te_<match>.json
   （1 Hz、nats、半场全局口径），本模块只做减法、不复算。
 
 **模型设计（m2）**：GVRNN 固定 K=11 节点（10 外场 + 球），单模型单潜空间保证 $\dot{TE}$
@@ -248,6 +250,6 @@ flowchart TD
   G --> H{"S：带权成对转移熵(替补) − (首发) > 0 的替补<br/>43829 · 163972 · 31147 三名全胜"}
   G --> K["dot_te.csv · subs_te_summary.json · dot_te_report.md"]
   H --> I["te_emergence/sub_gain.py<br/>MI 直接取 vi_te_1886347.json（不复算）"]
-  I --> J["Ψ_A(VI) = I(VI_t;VI_{t'}) − Σ_{i∈S} I(A^i_t;VI_{t'})<br/>P1 = 0.010953 · P2 = −0.002459 nats<br/>对照 Ψ_uncond：P2 = −0.042334"]
+  I --> J["Ψ_A(V̇I) = I(V̇I_t;V̇I_{t'}) − Σ_{i∈S} I(A^i_t;V̇I_{t'})<br/>P1 = 0.010953 · P2 = −0.002459 nats<br/>对照 Ψ_uncond：P2 = −0.042334"]
   J --> L["sub_gain_report.md"]
 ```

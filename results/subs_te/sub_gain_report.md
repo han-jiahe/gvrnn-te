@@ -1,17 +1,19 @@
-# Ψ_A(VI)：替补信息增益与比赛宏观动态的因果涌现（GVRNN 计算协议）
-- VI 数据：`D:\gvrnn-te\results\vi_te_1886347.json`（home|1 / home|2，1 Hz，MI 单位 nats）
-- dotTE 数据：`D:\gvrnn-te\results\subs_te\subs_te_summary.json`
+# Ψ_A(V̇I)：替补信息增益与比赛宏观动态的因果涌现（GVRNN 计算协议）
+- VI 数据：`results\vi_te_1886347.json`（home|1 / home|2，1 Hz，MI 单位 nats）
+- dotTE 数据：`results\subs_te\subs_te_summary.json`
 
 ## 1. 协议公式
 
-$$S = \{\dot{TE}(ax') - \dot{TE}(ax) > 0\}$$
+$$S = \left\{\ \text{sub}\ p : \dot{TE}(p) > \dot{TE}(\text{starter}(p))\ \right\}$$
 
-$$\Psi_A(VI) := I(VI_t; VI_{t'}) - \sum_{i \in S} I(A_t^i; VI_{t'})$$
+$$\Psi_A(\dot{VI}) := I(\dot{VI}_t; \dot{VI}_{t'}) - \sum_{i \in S} I(A^i_t; \dot{VI}_{t'})$$
 
-- `dotTE(p)`：p 对全部共同在场队友的 TE_eff 之和 ÷ 在场跟踪分钟（见 dot_te_report.md）。
+> 术语：宏观变量为**信息变差率** $\dot{VI}$ （逐样本 Variation of Information，Pereira et al. 2021）；vi-te 数据文件中记作 `VI`（i_macro / per_player_mi 字段），下文符号注解中的 `I(VI_t; VI_{t'})` 即 $I(\dot{VI}_t; \dot{VI}_{t'})$ 。
+
+- `dotTE(p)`（带权成对转移熵 $\dot{TE}$ ）：p 对全部共同在场队友的 TE_eff 之和 ÷ 在场跟踪分钟（见 dot_te_report.md）。
 - `S`：TE 上胜过所替换首发的**替补**集合。
-- `I(VI_t; VI_{t'})`：i_macro_nats——全队 VI 链的一步自预测信息。
-- `I(A_t^i; VI_{t'})`：per_player_mi_nats——球员 i 对 VI 下一步的互信息（vi-te 半场全局口径，不复算）。
+- `I(VI_t; VI_{t'})`：i_macro_nats——全队信息变差率链的一步自预测信息。
+- `I(A^i_t; VI_{t'})`：per_player_mi_nats——球员 i 对信息变差率下一步的互信息（vi-te 半场全局口径，不复算）。
 - 替补只在下半场出场 → 上半场 S 交集为空，Ψ_A(P1) = i_macro 原值。
 
 ## 2. S 判定（dotTE 差值）
@@ -24,9 +26,9 @@ $$\Psi_A(VI) := I(VI_t; VI_{t'}) - \sum_{i \in S} I(A_t^i; VI_{t'})$$
 
 **S = [43829, 163972, 31147]**
 
-## 3. Ψ_A(VI) 计算
+## 3. Ψ_A(V̇I) 计算
 
-| 半场 | i_macro | S 中在场者 | 减项合计 | **Ψ_A(VI)** | 全量 Ψ_uncond（对照） | Δ(Ψ_A − Ψ) |
+| 半场 | i_macro | S 中在场者 | 减项合计 | **Ψ_A(V̇I)** | 全量 Ψ_uncond（对照） | Δ(Ψ_A − Ψ) |
 |---|---|---|---|---|---|---|
 | P1 | 0.01095 | ∅ | 0.00000 | **0.01095** | -0.01151 | +0.02247 |
 | P2 | 0.01940 | [43829, 163972, 31147] | 0.02185 | **-0.00246** | -0.04233 | +0.03987 |
@@ -47,18 +49,18 @@ $$\Psi_A(VI) := I(VI_t; VI_{t'}) - \sum_{i \in S} I(A_t^i; VI_{t'})$$
 - `i_macro`（= I(VI_t; VI_{t'})）：全队 VI 自预测互信息，nats/步。
 - `per_player_mi`（= I(A^i_t; VI_{t'})）：球员 i 与 VI 下一步的无条件互信息，nats/步，按半场全局计算。
 - `Ψ_uncond`：全量口径涌现 = i_macro − Σ_{10 人} MI（vi 项目 Task 2）。
-- `Ψ_A(VI)`：协议口径 = i_macro − Σ_{i∈S} MI。
+- `Ψ_A(V̇I)`：协议口径 = i_macro − Σ_{i∈S} MI。
 - 单位：nats（×1.4427 → bits）。
 
 ## 6. 结果可视化
 
 （由 `te_emergence/sub_figures.py` 生成，`results/subs_te/figures/`，与 `te_emergence/figures` 同一设计系统）
 
-- **图 1 · 涌现平面**：Ψ_A（主口径，蓝）与 Ψ_uncond（全量对照，灰）对 I(VI_t;VI_{t'})，P1/P2 两半场，虚线跨度 = Σ_S I(A^i;VI′)
+- **图 1 · 涌现平面**：Ψ_A（主口径，蓝）与 Ψ_uncond（全量对照，灰）对 I(V̇I_t; V̇I_{t'})，P1/P2 两半场，虚线跨度 = Σ_S I(A^i; V̇I′)
 
   ![sub1 涌现平面](figures/sub1_emergence_plane.png)
 
-- **图 4 · Ψ_A 瀑布**：I(VI_t;VI_{t'}) − Σ_{i∈S} I(A^i_t;VI_{t'}) 的减法分解（P1/P2 两面板，nats），虚线 = Ψ_uncond 对照
+- **图 4 · Ψ_A 瀑布**：I(V̇I_t; V̇I_{t'}) − Σ_{i∈S} I(A^i_t; V̇I_{t'}) 的减法分解（P1/P2 两面板，nats），虚线 = Ψ_uncond 对照
 
   ![sub4 Ψ_A 瀑布](figures/sub4_psi_waterfall.png)
 

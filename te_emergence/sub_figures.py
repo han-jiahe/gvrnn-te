@@ -1,4 +1,4 @@
-"""dotTE / Ψ_A(VI) 管线结果图（sub1–sub4，PNG，随仓库发布）。
+"""dotTE / Ψ_A(V̇I) 管线结果图（sub1–sub4，PNG，随仓库发布）。
 
 与 te_emergence.figures 同一设计系统：SURFACE/INK 墨色 token、发丝 y 网格、
 ≥8px 标记 + 2px 表面环、2px 线、文本一律墨色 token（不用序列色）、
@@ -12,10 +12,10 @@
 - results/vi_te_1886347.json           halves.home|{1,2}.psi（nats）
 
 图：
-- sub1_emergence_plane   Ψ vs I(VI_t;VI_{t'})：Ψ_A 主口径 vs Ψ_uncond 全量对照（P1/P2）
+- sub1_emergence_plane   Ψ vs I(V̇I_t;V̇I_{t'})：Ψ_A 主口径 vs Ψ_uncond 全量对照（P1/P2）
 - sub2_dot_te_dumbbell   3 换人对哑铃：替补 vs 被替补 dotTE（bits/min）+ Δ
 - sub3_pair_scatter      42 有效对 TE_eff vs 源在场分钟（替补/被替补着色 + 短窗区标注）
-- sub4_psi_waterfall     Ψ_A 瀑布分解：i_macro − Σ_S I(A^i;VI')（P1/P2 两面板）
+- sub4_psi_waterfall     Ψ_A 瀑布分解：i_macro − Σ_S I(A^i;V̇I′）（P1/P2 两面板）
 
 用法：
     python -m te_emergence.sub_figures \
@@ -66,7 +66,7 @@ def _save(fig, out_dir: Path, name: str) -> Path:
 
 # ------------------------------------------------------------------ sub1 涌现平面
 def sub1_emergence_plane(psi: dict, out_dir: Path) -> Path:
-    """Ψ vs I(VI_t;VI_{t'})：每半场一个点，Ψ_A（主口径）与 Ψ_uncond（对照）成对。"""
+    """Ψ vs I(V̇I_t;V̇I_{t'})：每半场一个点，Ψ_A（主口径）与 Ψ_uncond（对照）成对。"""
     fig, ax = plt.subplots(figsize=(6.9, 4.7))
     ax.axhline(0, color=BASE, linewidth=1.0)
 
@@ -89,7 +89,7 @@ def sub1_emergence_plane(psi: dict, out_dir: Path) -> Path:
 
     ax.text(xs[0] + 0.0003, ya[0] + 0.0016, "P1 · 上半场", color=INK,
             fontweight="bold", fontsize=10)
-    ax.text(xs[0] + 0.0003, ya[0] - 0.0046, "S 无人上场 → Ψ_A = I(VI;VI′) = +0.010953",
+    ax.text(xs[0] + 0.0003, ya[0] - 0.0046, r"S 无人上场 → Ψ_A = $I(\dot{VI};\,\dot{VI}')$ = +0.010953",
             color=INK2, fontsize=8.5)
     ax.text(xs[0] + 0.0003, yu[0] - 0.0046, "Ψ_uncond −0.011512",
             color=INK2, fontsize=8.5)
@@ -97,20 +97,20 @@ def sub1_emergence_plane(psi: dict, out_dir: Path) -> Path:
             fontweight="bold", fontsize=10)
     ax.text(xs[1] - 0.0003, ya[1] - 0.0046, "Ψ_A = −0.002459",
             color=INK2, fontsize=8.5, ha="right")
-    ax.text(xs[1] - 0.0003, (ya[1] + yu[1]) / 2, "Σ_S I(A^i;VI′) = 0.021854",
+    ax.text(xs[1] - 0.0003, (ya[1] + yu[1]) / 2, r"$\Sigma_S I(A^i;\,\dot{VI}')$ = 0.021854",
             color=INK2, fontsize=8.5, va="center", ha="right")
     ax.text(xs[1] - 0.0003, yu[1] - 0.0046, "Ψ_uncond −0.042334",
             color=INK2, fontsize=8.5, ha="right")
 
     ax.set_xlim(0.0080, 0.0218)
     ax.set_ylim(-0.0530, 0.0210)
-    ax.set_xlabel("I(VI_t; VI_{t'})（nats）")
+    ax.set_xlabel(r"$I(\dot{VI}_t;\,\dot{VI}_{t'})$（nats）")
     ax.set_ylabel("Ψ（nats）")
     ax.set_title("涌现平面：Ψ_A 与 Ψ_uncond（1886347 · Auckland 主队，两半场）")
     ax.legend(loc="lower right", frameon=False)
     _style_ax(ax)
     fig.text(0.012, 0.02,
-             "Ψ_A = I(VI_t;VI_{t'}) − Σ_{i∈S} I(A^i_t;VI_{t'})，S = dotTE 胜过被替补的"
+             r"Ψ_A = $I(\dot{VI}_t;\,\dot{VI}_{t'}) - \sum_{i\in S} I(A^i_t;\,\dot{VI}_{t'})$，S = dotTE 胜过被替补的"
              "三名替补（43829 · 163972 · 31147）；虚线跨度 = 被减项 Σ_S。MI 直接取自 "
              "vi_te_1886347.json（1 Hz · nats · 不复算）。P2 的 Ψ_A 落在零线以下、"
              "但高于 Ψ_uncond 0.0399 nats。",
@@ -201,9 +201,9 @@ def sub3_pair_scatter(valid: pd.DataFrame, out_dir: Path) -> Path:
 
 # ------------------------------------------------------------------ sub4 Ψ_A 瀑布
 def sub4_psi_waterfall(psi: dict, out_dir: Path) -> Path:
-    """Ψ_A 减法分解（P1/P2 两面板，共享 y）：i_macro − Σ_S I(A^i;VI′) = Ψ_A。"""
+    """Ψ_A 减法分解（P1/P2 两面板，共享 y）：i_macro − Σ_S I(A^i;V̇I′) = Ψ_A。"""
     fig, axes = plt.subplots(1, 2, figsize=(10.8, 4.6), sharey=True)
-    fig.suptitle("Ψ_A(VI) 瀑布分解：I(VI_t;VI_{t'}) − Σ_{i∈S} I(A^i_t;VI_{t'})（nats）",
+    fig.suptitle(r"$\Psi_A(\dot{VI})$ 瀑布分解：$I(\dot{VI}_t;\,\dot{VI}_{t'}) - \sum_{i\in S} I(A^i_t;\,\dot{VI}_{t'})$（nats）",
                  y=1.02)
     subs_order = [43829, 163972, 31147]
     panels = [("P1 · 上半场（S 无人上场）", "home|1"),
@@ -217,7 +217,7 @@ def sub4_psi_waterfall(psi: dict, out_dir: Path) -> Path:
         psi_a = im - sum(contribs)
         heights = [im] + [-c for c in contribs] + [psi_a]
         colors = [BLUE] + [ORANGE] * len(contribs) + [AQUA]
-        labels = ["I(VI;VI′)"] + [f"{_NAME[s]}\n{s}" for s in subs_order] + ["Ψ_A"]
+        labels = [r"$I(\dot{VI};\,\dot{VI}')$"] + [f"{_NAME[s]}\n{s}" for s in subs_order] + ["Ψ_A"]
 
         ax.set_ylim(*ylim)
         ax.axhline(0, color=BASE, linewidth=1.0)
@@ -241,14 +241,14 @@ def sub4_psi_waterfall(psi: dict, out_dir: Path) -> Path:
 
     axes[0].set_ylabel("nats")
     axes[1].legend(handles=[
-        Patch(facecolor=BLUE, label="I(VI_t;VI_{t'}) 总 MI"),
-        Patch(facecolor=ORANGE, label="S 成员 I(A^i_t;VI_{t'})（被减）"),
+        Patch(facecolor=BLUE, label=r"$I(\dot{VI}_t;\,\dot{VI}_{t'})$ 总 MI"),
+        Patch(facecolor=ORANGE, label=r"S 成员 $I(A^i_t;\,\dot{VI}_{t'})$（被减）"),
         Patch(facecolor=AQUA, label="Ψ_A 净额"),
     ], loc="upper right", frameon=False, fontsize=8.5)
     fig.text(0.012, 0.02,
              "P2：0.019395 − 0.003014 − 0.010100 − 0.008739 = −0.002459 nats；"
              "虚线 = Ψ_uncond 全量对照（P2 −0.042334，Ψ_A 相对其回升 +0.0399）。"
-             "P1 替补未上场，Ψ_A = I(VI;VI′)。MI 直接取自 vi_te_1886347.json，"
+             r"P1 替补未上场，Ψ_A = $I(\dot{VI};\,\dot{VI}')$。MI 直接取自 vi_te_1886347.json，"
              "本模块只做减法。",
              color=MUTED, fontsize=8.5)
     return _save(fig, out_dir, "sub4_psi_waterfall.png")
@@ -268,7 +268,7 @@ def make_figures(dot_te_csv: Path, summary_json: Path, vi_json: Path,
 
 
 if __name__ == "__main__":
-    ap = argparse.ArgumentParser(description="dotTE / Ψ_A(VI) 管线结果图（sub1–sub4）")
+    ap = argparse.ArgumentParser(description="dotTE / Ψ_A(V̇I) 管线结果图（sub1–sub4）")
     ap.add_argument("--dot-te", default="results/subs_te/dot_te.csv")
     ap.add_argument("--summary", default="results/subs_te/subs_te_summary.json")
     ap.add_argument("--vi-json", default="results/vi_te_1886347.json")

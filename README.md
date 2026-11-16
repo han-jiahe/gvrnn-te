@@ -14,7 +14,7 @@
 > **Version**: 1.2.0
 
 > **Goal**: 从 SkillCorner 足球轨迹中提取 GVRNN 球员潜链，计算替补/被替补球员的
-> 带权成对转移熵（记为 $\dot{TE}$ ），并桥接 VI 因果涌现的 $\Psi_A(VI)$ 下行指标——形成「潜链 → 信息流 → 宏观涌现」的完整管线。
+> 带权成对转移熵（记为 $\dot{TE}$ ），并桥接信息变差率 $\dot{VI}$ 因果涌现的 $\Psi_A(\dot{VI})$ 下行指标——形成「潜链 → 信息流 → 宏观涌现」的完整管线。
 
 ## 📖 Introduction
 
@@ -33,17 +33,17 @@ $$\dot{TE}(p) = \frac{1}{t_p}\sum_{q \in \mathcal{T}(p)} TE_{\mathrm{eff}}(p \to
 
 其中 $\mathcal{T}(p)$ 为 p 的共同在场队友（排除自己与换人伙伴）， $t_p$ 为 p 的在场跟踪分钟，`sub` / `starter` 分别指替补与被其替换的首发（协议 §15，`run_subs_te.py`）。
 
-4. **Ψ_A(VI) 桥接**：
+4. **Ψ_A 桥接**（宏观变量为信息变差率 $\dot{VI}$ ）：
 
-$$\Psi_A(VI) = I\left(VI_t;\, VI_{t'}\right) - \sum_{i \in S} I\left(A^i_t;\, VI_{t'}\right)$$
+$$\Psi_A(\dot{VI}) = I\left(\dot{VI}_t;\, \dot{VI}_{t'}\right) - \sum_{i \in S} I\left(A^i_t;\, \dot{VI}_{t'}\right)$$
 
-其中 MI 直接取自 vi-te 产出，本仓库只做减法（`te_emergence/sub_gain.py`）。
+其中信息变差率 $\dot{VI}$ 即逐样本 Variation of Information（Pereira et al. 2021）；MI 直接取自 vi-te 产出，本仓库只做减法（`te_emergence/sub_gain.py`）。
 
 5. **研究产出**：m2 实验（比赛 1886347 · Auckland 主队）——`dot_te.csv`、  
 `dot_te_report.md`、`sub_gain_report.md`、4 张管线结果图  
 （`results/subs_te/figures/`）、协议流程图（PROTOCOL.md §15）。
 
-- 方法学协议见 [PROTOCOL.md](PROTOCOL.md)（估计器、代理检验、守卫，含 $\dot{TE}$ 与 $\Psi_A(VI)$ 的定义）
+- 方法学协议见 [PROTOCOL.md](PROTOCOL.md)（估计器、代理检验、守卫，含 $\dot{TE}$ 与 $\Psi_A(\dot{VI})$ 的定义）
 - 高斯 TE 闭式推导见 [docs/te_gaussian_explained.md](docs/te_gaussian_explained.md)
 - VI 桥接的 10 场成果报告由 `te_emergence/report.py` 生成（`results/vi_te_report.md`）
 
@@ -117,7 +117,7 @@ python -m run_subs_te --latents artifacts/m2/latents.npz \
 python -m te_emergence.pool        # 10 场汇总表 + 统计检验（默认读 results/）
 python -m te_emergence.report      # vi_te_report.md 成果报告
 
-# 7. 替补信息增益 → Ψ_A(VI)（GVRNN 计算协议）
+# 7. 替补信息增益 → Ψ_A(V̇I)（GVRNN 计算协议）
 python -m te_emergence.sub_gain \
     --vi-json results/vi_te_1886347.json \
     --subs-summary results/subs_te/subs_te_summary.json \
@@ -161,3 +161,4 @@ python -m pytest tests/ -q     # 全部合成数据，无外部依赖
 - Schreiber 2000, "Measuring Information Transfer", PRL 85:461（转移熵）
 - Kraskov et al. 2004, PRE 69:066138 / Frenzel & Pompe 2007, PRL 99:204101（KSG）
 - Rosas et al. 2020, PLoS Comput Biol 16(12):e1008289（因果涌现框架）
+- Pereira et al. 2021, "The Soccer Game, Bit by Bit: An Information-Theoretic Analysis", Chaos, Solitons & Fractals 152:111356, DOI: [10.1016/j.chaos.2021.111356](https://doi.org/10.1016/j.chaos.2021.111356)（信息变差率 $\dot{VI}$ 的来源）
