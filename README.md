@@ -18,21 +18,35 @@
 
 ## 📖 Introduction
 
-1. **潜链提取**：GVRNN（Yeh et al., CVPR 2019）逐球员潜动力学 ${z_t}$（32 维 · 10 Hz），
-   单模型单潜空间保证跨球员可比（`gvrnn/`、`data_loading.py`）。
-2. **成对转移熵**：$TE(A→B) = I({{z^A}_{t−1}}; {{z^B}_t} | {{z^B}_{t−1}})$——高斯闭式 / KSG /
-   离散 plug-in 三估计器 + 200 次块置换代理 + BH-FDR（`mte/`、`run_player_mte.py`）。
-3.  **替补 dotTE** ：
-$$\dot{TE}(p) = \sum_{q} \frac{TE_{\mathrm{eff}}(p \to q)}{t_p}$$，S = {$\dot{TE}$ 胜过被替补的替补}（协议 §15，`run_subs_te.py`）。
-4.  **Ψ_A(VI) 桥接** ：$\Psi_A = I(VI_t;\, VI_{t'}) - \sum_{i \in S} I(A^i_t;\, VI_{t'})$，MI 直接取自
-   vi-te 产出、本仓库只做减法（`te_emergence/sub_gain.py`）。
-5. **研究产出**：m2 实验（比赛 1886347 · Auckland 主队）——`dot_te.csv`、
-   `dot_te_report.md`、`sub_gain_report.md`、4 张管线结果图
-   （`results/subs_te/figures/`）、协议流程图（PROTOCOL.md §15）。
+1. **潜链提取**：GVRNN（Yeh et al., CVPR 2019）逐球员潜动力学 ${z_t}$（32 维 · 10 Hz），  
+单模型单潜空间保证跨球员可比（`gvrnn/`、`data_loading.py`）。
+
+2. **成对转移熵**：
+
+$$TE(A\to B) = I\left(z^A_{t-1};\, z^B_t \mid z^B_{t-1}\right)$$
+
+上式表示，在给定 $z^B_{t-1}$ 的条件下，$z^A_{t-1}$ 与 $z^B_t$ 之间的条件互信息；其实现采用高斯闭式解、KSG、离散 plug-in 三种估计器，并结合 200 次块置换代理检验与 BH-FDR 校正（`mte/`、`run_player_mte.py`）。
+
+3. **替补 dotTE**：
+
+$$\dot{TE}(p) = \sum_{q} \frac{TE_{\mathrm{eff}}(p \to q)}{t_p}$$
+
+其中 $S = \{\dot{TE}\ \text{胜过被替补的替补}\}$（协议 §15，`run_subs_te.py`）。
+
+4. **Ψ_A(VI) 桥接**：
+
+$$\Psi_A = I\left(VI_t;\, VI_{t'}\right) - \sum_{i \in S} I\left(A^i_t;\, VI_{t'}\right)$$
+
+其中 MI 直接取自 vi-te 产出，本仓库只做减法（`te_emergence/sub_gain.py`）。
+
+5. **研究产出**：m2 实验（比赛 1886347 · Auckland 主队）——`dot_te.csv`、  
+`dot_te_report.md`、`sub_gain_report.md`、4 张管线结果图  
+（`results/subs_te/figures/`）、协议流程图（PROTOCOL.md §15）。
 
 - 方法学协议见 [PROTOCOL.md](PROTOCOL.md)（估计器、代理检验、守卫、$\dot{TE}$）
 - 高斯 TE 闭式推导见 [docs/te_gaussian_explained.md](docs/te_gaussian_explained.md)
 - VI 桥接的 10 场成果报告由 `te_emergence/report.py` 生成（`results/vi_te_report.md`）
+
 
 ## 仓库布局
 
