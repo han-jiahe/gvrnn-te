@@ -11,31 +11,31 @@
 
 </div>
 
-> **Version**: 0.2.0
+> **Version**: 1.2.0
+
 > **Goal**: 从 SkillCorner 足球轨迹中提取 GVRNN 球员潜链，计算替补/被替补球员的
-> $\dot{TE}$（带权成对转移熵），并桥接 $\dot{VI}$ 因果涌现的 ${{\psi }_{A}}(VI)$ 下行指标——形成
-> 「潜链 → 信息流 → 宏观涌现」的完整管线。
+> 带权成对转移熵（记为 $\dot{TE}$ ），并桥接 VI 因果涌现的 $\Psi_A(VI)$ 下行指标——形成「潜链 → 信息流 → 宏观涌现」的完整管线。
 
 ## 📖 Introduction
 
-1. **潜链提取**：GVRNN（Yeh et al., CVPR 2019）逐球员潜动力学 ${z_t}$（32 维 · 10 Hz），  
+1. **潜链提取**：GVRNN（Yeh et al., CVPR 2019）逐球员潜动力学 $z_t$ （32 维 · 10 Hz），  
 单模型单潜空间保证跨球员可比（`gvrnn/`、`data_loading.py`）。
 
 2. **成对转移熵**：
 
 $$TE(A\to B) = I\left(z^A_{t-1};\, z^B_t \mid z^B_{t-1}\right)$$
 
-上式表示，在给定 $z^B_{t-1}$ 的条件下，$z^A_{t-1}$ 与 $z^B_t$ 之间的条件互信息；其实现采用高斯闭式解、KSG、离散 plug-in 三种估计器，并结合 200 次块置换代理检验与 BH-FDR 校正（`mte/`、`run_player_mte.py`）。
+上式表示，在给定 $z^B_{t-1}$ 的条件下， $z^A_{t-1}$ 与 $z^B_t$ 之间的条件互信息；其实现采用高斯闭式解、KSG、离散 plug-in 三种估计器，并结合 200 次块置换代理检验与 BH-FDR 校正（`mte/`、`run_player_mte.py`）。
 
-3. **替补 dotTE**：
+3. **带权成对转移熵**（记为 $\dot{TE}$ ，代码标识 `dotTE`）：
 
-$$\dot{TE}(p) = \sum_{q} \frac{TE_{\mathrm{eff}}(p \to q)}{t_p}$$
+$$\dot{TE}(p) = \frac{1}{t_p}\sum_{q \in \mathcal{T}(p)} TE_{\mathrm{eff}}(p \to q), \qquad S = \left\{\ \text{sub}\ p : \dot{TE}(p) > \dot{TE}(\text{starter}(p))\ \right\}$$
 
-其中 $S = \{\dot{TE}\ \text{胜过被替补的替补}\}$（协议 §15，`run_subs_te.py`）。
+其中 $\mathcal{T}(p)$ 为 p 的共同在场队友（排除自己与换人伙伴）， $t_p$ 为 p 的在场跟踪分钟，`sub` / `starter` 分别指替补与被其替换的首发（协议 §15，`run_subs_te.py`）。
 
 4. **Ψ_A(VI) 桥接**：
 
-$$\Psi_A = I\left(VI_t;\, VI_{t'}\right) - \sum_{i \in S} I\left(A^i_t;\, VI_{t'}\right)$$
+$$\Psi_A(VI) = I\left(VI_t;\, VI_{t'}\right) - \sum_{i \in S} I\left(A^i_t;\, VI_{t'}\right)$$
 
 其中 MI 直接取自 vi-te 产出，本仓库只做减法（`te_emergence/sub_gain.py`）。
 
@@ -43,7 +43,7 @@ $$\Psi_A = I\left(VI_t;\, VI_{t'}\right) - \sum_{i \in S} I\left(A^i_t;\, VI_{t'
 `dot_te_report.md`、`sub_gain_report.md`、4 张管线结果图  
 （`results/subs_te/figures/`）、协议流程图（PROTOCOL.md §15）。
 
-- 方法学协议见 [PROTOCOL.md](PROTOCOL.md)（估计器、代理检验、守卫、$\dot{TE}$）
+- 方法学协议见 [PROTOCOL.md](PROTOCOL.md)（估计器、代理检验、守卫，含 $\dot{TE}$ 与 $\Psi_A(VI)$ 的定义）
 - 高斯 TE 闭式推导见 [docs/te_gaussian_explained.md](docs/te_gaussian_explained.md)
 - VI 桥接的 10 场成果报告由 `te_emergence/report.py` 生成（`results/vi_te_report.md`）
 
@@ -59,12 +59,12 @@ $$\Psi_A = I\left(VI_t;\, VI_{t'}\right) - \sum_{i \in S} I\left(A^i_t;\, VI_{t'
 | `data_loading.py` | SkillCorner 轨迹 → GVRNN npz 导出（含 `--player-ids` 定制节点集） |
 | `run_player_mte.py` | 球员间成对 TE 全量计算 |
 | `run_player_te.py` | 底层 TE 运行器（窗口/掩码/冻结变换/代理） |
-| `run_subs_te.py` | 替补/被替补球员 dotTE（GVRNN 计算协议，§15） |
+| `run_subs_te.py` | 替补/被替补球员的带权成对转移熵（代码标识 `dotTE`，GVRNN 计算协议，§15） |
 | `latent_phase.py` | 潜状态 × 比赛阶段联合概率（离散计数，含 live/dead 与 live_only 口径） |
 | `phase_te.py` | 球员潜链 ↔ 比赛阶段链双向 TE（离散 plug-in + 块置换代理 + BH-FDR） |
 | `latent_pair_te.py` | 10 Hz 同协议球员↔球员潜链 TE（量级对照） |
 | `te_scale_compare.py` | 三族 TE（潜链↔潜链 / 潜链↔阶段 / VI↔球员）统一尺度对照报告 |
-| `results/subs_te/` | **dotTE/Ψ_A 管线实验的结果与分析**（`pipeline_report.md` 汇总四图、`dot_te_report.md`、`sub_gain_report.md`、`dot_te.csv`、`subs_te_summary.json`、`figures/` 4 张管线结果图，随仓库发布） |
+| `results/subs_te/` | **带权成对转移熵 / Ψ_A 管线实验的结果与分析**（`pipeline_report.md` 汇总四图、`dot_te_report.md`、`sub_gain_report.md`、`dot_te.csv`、`subs_te_summary.json`、`figures/` 4 张管线结果图，随仓库发布） |
 | `tests/` | pytest 用例（全部合成数据，`python -m pytest tests/ -q`） |
 | `docs/` | 方法学文档与图 |
 
@@ -107,7 +107,7 @@ python -m gvrnn.extract --npz artifacts/m1/tracking.npz \
 python -m run_player_mte --latents artifacts/m1/latents.npz \
     --players 0,1,2,3,4,5,6,7,8,9 --out results/m1_te.json
 
-# 5. 替补/被替补 dotTE（需一个含 6 名轮换球员的定制模型，如 m2）
+# 5. 替补/被替补的带权成对转移熵（代码标识 dotTE；需一个含 6 名轮换球员的定制模型，如 m2）
 python -m run_subs_te --latents artifacts/m2/latents.npz \
     --live artifacts/m2/tracking_m2.npz \
     --swap-pairs 43829,133501;163972,50951;31147,38673 \

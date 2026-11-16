@@ -1,6 +1,6 @@
 # 球员级传输熵 TE 协议
 
-> 本目录（D:\MarkovSoccerTE）是球员对球员 TE 计算的独立工作目录。
+> 本文件是球员对球员 TE 计算的方法学协议（仓库 `gvrnn-te`）。
 > 曾实现的**多变量 MTE**（条件化其余球员历史以剔除共同驱动）已终止；现统一为**两两 TE**。
 
 ---
@@ -9,16 +9,14 @@
 
 对每对球员（含球，共 K=11 个节点）计算**有向传输熵**：
 
-```
-TE(A→B) = I( z^A_{t−1} ; z^B_t | z^B_{t−1} )
-```
+$$TE(A \to B) = I\left(z^A_{t-1} ;\, z^B_t \mid z^B_{t-1}\right)$$
 
-- z^k_t：球员 k 在 t 帧的 GVRNN 潜变量后验均值（32 维，10 Hz，§3）；
+- $z^k_t$ ：球员 k 在 t 帧的 GVRNN 潜变量后验均值（32 维，10 Hz，§3）；
 - **条件集 = 目标 B 自己的历史（一阶）**，不含第三方球员；
-- 历史长度恒为 1（k=l=1）：潜链以 GRU 隐状态 h_{t−1} 汇总历史而近似一阶 Markov；
+- 历史长度恒为 1（k=l=1）：潜链以 GRU 隐状态 $h_{t-1}$ 汇总历史而近似一阶 Markov；
 - 输出：N×N 非对称 TE 矩阵 = 球队"信息流图"。
 
-三种估计器（同一个 I(X;Y|Z)，只是 Z 取 [z^B_{t−1}]）：
+三种估计器（同一个 $I(X;Y \mid Z)$ ，只是 Z 取 $[z^B_{t-1}]$ ）：
 **高斯闭式**（§6）、**KSG**（§5）、**离散 plug-in**（§7）。
 
 ## 2. 与 MTE 的关系（诚实声明）
@@ -69,34 +67,27 @@ X = A[:-1]、Y = B[1:]、Z = B[:-1]，n = T−1。
 
 ## 5. 方法 A：KSG（Frenzel–Pompe）
 
-```
-I(X;Y|Z) = ψ(k) + ⟨ ψ(n_Z + 1) − ψ(n_XZ + 1) − ψ(n_YZ + 1) ⟩
-```
+$$I(X;Y \mid Z) = \psi(k) + \Big\langle \psi(n_Z+1) - \psi(n_{XZ}+1) - \psi(n_{YZ}+1) \Big\rangle$$
 
 全空间 (X,Y,Z) 上取第 k 近邻半径（Chebyshev，严格 "<"），在同一半径下于 Z、(X,Z)、(Y,Z)
 三个边际空间分别数球。**两链时联合维数仅 3**（d=1），估计质量远好于 MTE 的 12 维。
 
 ## 6. 方法 B：条件高斯（偏协方差闭式）
 
-```
-I(X;Y|Z) = ½ log₂[ |S_XZ| |S_YZ| / ( |S_Z| |S_XYZ| ) ]
-```
+$$I(X;Y \mid Z) = \tfrac{1}{2}\log_2 \frac{|S_{XZ}|\,|S_{YZ}|}{|S_Z|\,|S_{XYZ}|}$$
 
 （`mte/gaussian.py`；S 为样本协方差 + 迹缩放岭 ridge=1e-3。）等价于 Geweke/Granger 因果
 测度：X 在 Z 之外对 Y 的线性预测增量。**一维标准化的特例**：
 
-```
-TE = −½ log₂(1 − ρ²_XY·Z)     （ρ_XY·Z 为偏相关系数）
-```
+$$TE = -\tfrac{1}{2}\log_2\left(1 - \rho^2_{XY \cdot Z}\right)$$
 
-只捕捉线性耦合，方差最低，是天然基线。**Geweke χ² 交叉检验**：H0 下
-n·2·TE_nats ~ χ²(df = d_X·d_Y)。直观几何见 `docs/te_gaussian_explained.md`。
+其中 $\rho_{XY \cdot Z}$ 为偏相关系数。只捕捉线性耦合，方差最低，是天然基线。
+**Geweke χ² 交叉检验**：H0 下 $n \cdot 2 \cdot TE_{\text{nats}} \sim \chi^2(d_X \cdot d_Y)$ 。
+直观几何见 `docs/te_gaussian_explained.md`。
 
 ## 7. 方法 C：离散条件 plug-in
 
-```
-TE_d = Σ p(y', y, x, z) · log₂[ p(y'|y,x,z) / p(y'|y,z) ]
-```
+$$TE_d = \sum p(y', y, x, z)\; \log_2 \frac{p(y' \mid y, x, z)}{p(y' \mid y, z)}$$
 
 逐球员 K-means 量化后按样本均值估计 cell 对数比（`mte/discrete.py`）。**单元爆炸约束**：
 联合直方图单元数 ≤ n / min_samples_per_cell（10），超限的对跳过并记入 `skipped`。
@@ -188,7 +179,7 @@ python -m run_player_te --latents latents.npz --players 0,1 \    # 3. 两两 TE
 每个满足的对恰好计数 1 次：n[φ,s] += 1、N += 1。标签取"建模队视角"：我方持球 → in-possession
 类型，否则 → out-of-possession 类型。符号化 s：逐球员逐维 z-score 后 K-means（n_init=10、
 seed 冻结），按频率降序重命名（s0 = 最大簇）。互信息为 plug-in：
-I(Φ;S) = Σ p(φ,s)·log₂[p(φ,s)/(p(φ)p(s))]，0 计数单元贡献 0。
+$I(\Phi; S) = \sum p(\varphi, s)\,\log_2\frac{p(\varphi, s)}{p(\varphi)\,p(s)}$ ，0 计数单元贡献 0。
 
 三种口径同时输出（`results/latent_phase/`，`mi_summary.csv` 每行一个 scope）：
 - `live_dead`：二元对照——潜状态编码"球是否在比赛中"的程度（已知：≈0.01–0.02 bits，很弱）；
@@ -205,24 +196,27 @@ python -m latent_phase --latents <latents.npz> --live <tracking_pair1.npz> \
 ```
 
 同一对齐坐标下的**双向 TE**（`phase_te.py`，`results/phase_te/`）：
-TE(X→Y) = I(y_{t+1}; x_t | y_t)，一次计数 = 一个转移 t→t+1（两端 live、帧连续、
+$TE(X \to Y) = I(y_{t+1};\, x_t \mid y_t)$ ，一次计数 = 一个转移 t→t+1（两端 live、帧连续、
 同半场；live_only 再要求两端都被相位行覆盖）。`z->phi` 与 `phi->z` 均用离散 plug-in、
 源链块置换（块 25）代理。已知结果（1886347, K=8, 200 代理）：**phi→z 全 8 球员双口径
 p=0.005（eff ≈ 0.003–0.006 bits），z→phi 全口径 8/8 显著（live_only 4/8）**——阶段链
 预测潜链演化强于反向；K=3 无信号。φ 为场级链（8 球员测试不独立）、TE≠因果，见 §12。
 
-## 15. dotTE：替补 / 被替补球员对队友的 TE（`run_subs_te.py`，GVRNN 计算协议）
+## 15. 带权成对转移熵（`dotTE`）：替补 / 被替补球员对队友的 TE（`run_subs_te.py`，GVRNN 计算协议）
+
+> 术语：**带权成对转移熵**（weighted pairwise transfer entropy）即「成对 TE 之和 ÷ 在场时间」，
+> 记为 $\dot{TE}$ ；代码与结果文件沿用标识 `dotTE`（如 `dot_te.csv`、`--dot-te`、`dot_te_report.md`）。
 
 **协议口径**（依据 GVRNN计算协议.txt）：
-- `dotTE(p) = Σ_q TE_eff(p→q) / t_p`，t_p = p 的在场**跟踪**分钟（live 帧数 / 600）。
+- 带权成对转移熵 $\dot{TE}(p) = \frac{1}{t_p}\sum_q TE_{\mathrm{eff}}(p \to q)$ ，其中 $t_p$ 为 p 的在场**跟踪**分钟（live 帧数 / 600）。
 - 目标集 = 模型内其余外场节点，**排除自己与换人伙伴**；无共同在场时段的对（n=0）
   标记 `skipped`、不进求和。
-- `S = {替补 : dotTE(替补) − dotTE(首发) > 0}`。
-- `Ψ_A(VI) := I(VI_t; VI_{t'}) − Σ_{i∈S} I(A_t^i; VI_{t'})`（`te_emergence/sub_gain.py`）：
-  I(VI_t; VI_{t'}) 与每球员 I(A^i_t; VI_{t'}) 直接取自 vi-te 的 vi_te_<match>.json
+- $S = \{ \text{sub}\ p : \dot{TE}(p) > \dot{TE}(\text{starter}(p)) \}$ ，`sub` 为替补、`starter` 为被其替换的首发。
+- $\Psi_A(VI) := I(VI_t;\, VI_{t'}) - \sum_{i \in S} I(A^i_t;\, VI_{t'})$ （`te_emergence/sub_gain.py`）：
+  $I(VI_t; VI_{t'})$ 与每球员 $I(A^i_t; VI_{t'})$ 直接取自 vi-te 的 vi_te_<match>.json
   （1 Hz、nats、半场全局口径），本模块只做减法、不复算。
 
-**模型设计（m2）**：GVRNN 固定 K=11 节点（10 外场 + 球），单模型单潜空间保证 dotTE
+**模型设计（m2）**：GVRNN 固定 K=11 节点（10 外场 + 球），单模型单潜空间保证 $\dot{TE}$
 跨球员可比 → 节点 = **4 全勤（按位置覆盖：RB/LB/RCB/AM）+ 6 轮换（3 替补 + 3 被替补）
 + 球**。TE 只在共同在场窗口上估计（源窗口自动由 live_mask 限定，即协议 t1 / 100−t1
 窗口）。全勤 7 人中只取 4 人是 K=11 的容量取舍（目标集 = 4 全勤 + 5 其他轮换）。
@@ -231,7 +225,7 @@ p=0.005（eff ≈ 0.003–0.006 bits），z→phi 全口径 8/8 显著（live_on
 10 Hz 转移（两端 live、帧连续、同半场），离散 plug-in TE，200 次块置换代理（块 25），
 eff = raw − 代理均值，p 地板 1/201，BH-FDR（q=0.05）跨对族。输出
 `results/subs_te/`：dot_te.csv（每对一行 + skipped 标注）、subs_te_summary.json
-（每源 dotTE / 差值 / S）、dot_te_report.md、sub_gain_report.md；4 张管线结果图
+（每源 $\dot{TE}$ / 差值 / S）、dot_te_report.md、sub_gain_report.md；4 张管线结果图
 （sub1–sub4）由 `te_emergence/sub_figures.py` 生成于 `results/subs_te/figures/`。
 
 **已知限制**：目标数物理上不等（共同在场约束，6–8 个/源）→ 报均值口径作敏感性；
@@ -250,10 +244,10 @@ flowchart TD
   E --> E2["pair_mask：共同在场窗口<br/>（两端 live · 帧连续 · 同半场）"]
   E1 --> F["54 有序对 TE（排除自己 + 换人伙伴）<br/>离散 plug-in · 200 块置换代理（块 25）· BH-FDR<br/>skipped：无共同在场 6 对"]
   E2 --> F
-  F --> G["dotTE(p) = Σ_q TE_eff(p→q) / t_p<br/>t_p = live 帧数 / 600（跟踪分钟）"]
-  G --> H{"S：dotTE(替补) − dotTE(首发) > 0 的替补<br/>43829 · 163972 · 31147 三名全胜"}
+  F --> G["带权成对转移熵(p) = Σ_q TE_eff(p→q) / t_p<br/>t_p = live 帧数 / 600（跟踪分钟）"]
+  G --> H{"S：带权成对转移熵(替补) − (首发) > 0 的替补<br/>43829 · 163972 · 31147 三名全胜"}
   G --> K["dot_te.csv · subs_te_summary.json · dot_te_report.md"]
   H --> I["te_emergence/sub_gain.py<br/>MI 直接取 vi_te_1886347.json（不复算）"]
-  I --> J["Ψ_A(VI) = I(VI_t;VI_{t'}) − Σ_{i∈S} I(A_t^i;VI_{t'})<br/>P1 = 0.010953 · P2 = −0.002459 nats<br/>对照 Ψ_uncond：P2 = −0.042334"]
+  I --> J["Ψ_A(VI) = I(VI_t;VI_{t'}) − Σ_{i∈S} I(A^i_t;VI_{t'})<br/>P1 = 0.010953 · P2 = −0.002459 nats<br/>对照 Ψ_uncond：P2 = −0.042334"]
   J --> L["sub_gain_report.md"]
 ```
