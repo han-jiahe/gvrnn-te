@@ -4,7 +4,7 @@
 
 ## 1. 协议公式
 
-$$S = \left\{\ \text{sub}\ p : \dot{TE}(p) > \dot{TE}(\text{starter}(p))\ \right\}$$
+$$S = \left\lbrace\ \text{sub}\ p : \dot{TE}(p) > \dot{TE}(\text{starter}(p))\ \right\rbrace$$
 
 $$\Psi_A(\dot{VI}) := I(\dot{VI}_t; \dot{VI}_{t'}) - \sum_{i \in S} I(A^i_t; \dot{VI}_{t'})$$
 

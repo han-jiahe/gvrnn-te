@@ -76,7 +76,7 @@ def main(argv=None):
     L.append(f"- VI 数据：`{args.vi_json}`（home|1 / home|2，1 Hz，MI 单位 nats）\n"
              f"- dotTE 数据：`{args.subs_summary}`\n\n")
     L.append("## 1. 协议公式\n\n"
-             "$$S = \\left\\{\\ \\text{sub}\\ p : \\dot{TE}(p) > \\dot{TE}(\\text{starter}(p))\\ \\right\\}$$\n\n"
+             "$$S = \\left\\lbrace\\ \\text{sub}\\ p : \\dot{TE}(p) > \\dot{TE}(\\text{starter}(p))\\ \\right\\rbrace$$\n\n"
              "$$\\Psi_A(\\dot{VI}) := I(\\dot{VI}_t; \\dot{VI}_{t'}) - \\sum_{i \\in S} I(A^i_t; \\dot{VI}_{t'})$$\n\n"
              "> 术语：宏观变量为**信息变差率** $\\dot{VI}$ （逐样本 Variation of Information，"
              "Pereira et al. 2021）；vi-te 数据文件中记作 `VI`（i_macro / per_player_mi "

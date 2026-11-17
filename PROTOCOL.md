@@ -213,7 +213,7 @@ p=0.005（eff ≈ 0.003–0.006 bits），z→phi 全口径 8/8 显著（live_on
 - 带权成对转移熵 $\dot{TE}(p) = \frac{1}{t_p}\sum_q TE_{\mathrm{eff}}(p \to q)$ ，其中 $t_p$ 为 p 的在场**跟踪**分钟（live 帧数 / 600）。
 - 目标集 = 模型内其余外场节点，**排除自己与换人伙伴**；无共同在场时段的对（n=0）
   标记 `skipped`、不进求和。
-- $S = \{ \text{sub}\ p : \dot{TE}(p) > \dot{TE}(\text{starter}(p)) \}$ ，`sub` 为替补、`starter` 为被其替换的首发。
+- $S = \lbrace \text{sub}\ p : \dot{TE}(p) > \dot{TE}(\text{starter}(p)) \rbrace$ ，`sub` 为替补、`starter` 为被其替换的首发。
 - $\Psi_A(\dot{VI}) := I(\dot{VI}_t;\, \dot{VI}_{t'}) - \sum_{i \in S} I(A^i_t;\, \dot{VI}_{t'})$ （`te_emergence/sub_gain.py`）：
   $I(\dot{VI}_t; \dot{VI}_{t'})$ 与每球员 $I(A^i_t; \dot{VI}_{t'})$ 直接取自 vi-te 的 vi_te_<match>.json
   （1 Hz、nats、半场全局口径），本模块只做减法、不复算。

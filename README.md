@@ -29,7 +29,7 @@ $$TE(A\to B) = I\left(z^A_{t-1};\, z^B_t \mid z^B_{t-1}\right)$$
 
 3. **带权成对转移熵**（记为 $\dot{TE}$ ，代码标识 `dotTE`）：
 
-$$\dot{TE}(p) = \frac{1}{t_p}\sum_{q \in \mathcal{T}(p)} TE_{\mathrm{eff}}(p \to q), \qquad S = \left\{\ \text{sub}\ p : \dot{TE}(p) > \dot{TE}(\text{starter}(p))\ \right\}$$
+$$\dot{TE}(p) = \frac{1}{t_p}\sum_{q \in \mathcal{T}(p)} TE_{\mathrm{eff}}(p \to q), \qquad S = \left\lbrace\ \text{sub}\ p : \dot{TE}(p) > \dot{TE}(\text{starter}(p))\ \right\rbrace$$
 
 其中 $\mathcal{T}(p)$ 为 p 的共同在场队友（排除自己与换人伙伴）， $t_p$ 为 p 的在场跟踪分钟，`sub` / `starter` 分别指替补与被其替换的首发（协议 §15，`run_subs_te.py`）。
 
