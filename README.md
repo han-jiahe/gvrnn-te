@@ -14,20 +14,23 @@
 > **Version**: 1.2.0
 
 > **Goal**: 从 SkillCorner 足球轨迹中提取 GVRNN 球员潜链，计算替补/被替补球员的
-> 带权成对转移熵（记为 $\dot{TE}$ ），并桥接信息变差率 $\dot{VI}$ 因果涌现的 $\Psi_A(\dot{VI})$ 下行指标——形成「潜链 → 信息流 → 宏观涌现」的完整管线。
+> 带权成对传输熵（记为 $\dot{TE}$ ），并桥接信息变差率 $\dot{VI}$ 因果涌现的 $\Psi_A(\dot{VI})$ 下行指标——形成「潜链 → 信息流 → 宏观涌现」的完整管线。
 
 ## 📖 Introduction
 
 1. **潜链提取**：GVRNN（Yeh et al., CVPR 2019）逐球员潜动力学 $z_t$ （32 维 · 10 Hz），  
 单模型单潜空间保证跨球员可比（`gvrnn/`、`data_loading.py`）。
 
-2. **成对转移熵**：
+2. **成对传输熵**（由左向右推演）：
 
-$$TE(A\to B) = I\left(z^A_{t-1};\, z^B_t \mid z^B_{t-1}\right)$$
+| 显示概率展开形式 | 简化为1阶形式 | 条件互信息形式 | 面向源历史的成对形式 |
+|---|---|---|---|
+| $TE(J \to I) = \sum_{i_{n+1}, i_n^{(k)}, j_n^{(l)}} p(i_{n+1}, i_n^{(k)}, j_n^{(l)}) \log \frac{p(i_{n+1} \mid i_n^{(k)}, j_n^{(l)})}{p(i_{n+1} \mid i_n^{(k)})}$ | $TE(J \to I) = \sum_{i_{n+1}, i_n, j_n} p(i_{n+1}, i_n, j_n) \log \frac{p(i_{n+1} \mid i_n, j_n)}{p(i_{n+1} \mid i_n)}$ | $TE(J \to I) = I\left(j_n^{(l)}; i_{n+1} \mid i_n^{(k)}\right)$ | $TE(A \to B) = I\left(z^A_{t-1}; z^B_t \mid z^B_{t-1}\right)$ |
 
-上式表示，在给定 $z^B_{t-1}$ 的条件下， $z^A_{t-1}$ 与 $z^B_t$ 之间的条件互信息；其实现采用高斯闭式解、KSG、离散 plug-in 三种估计器，并结合 200 次块置换代理检验与 BH-FDR 校正（`mte/`、`run_player_mte.py`）。
+如上最右侧公式表示，在给定 $z^B_{t-1}$ 的条件下， $z^A_{t-1}$ 与 $z^B_t$ 之间的条件互信息；其实现采用高斯闭式解、KSG、离散 plug-in 三种估计器，并结合 200 次块置换代理检验与 BH-FDR 校正（`mte/`、`run_player_mte.py`）。
+> 注：本项目中部分文件会把“传输熵”写成“转移熵”方便理解，含义相同
 
-3. **带权成对转移熵**（记为 $\dot{TE}$ ，代码标识 `dotTE`）：
+3. **带权成对传输熵**（记为 $\dot{TE}$ ，代码标识 `dotTE`）：
 
 $$\dot{TE}(p) = \frac{1}{t_p}\sum_{q \in \mathcal{T}(p)} TE_{\mathrm{eff}}(p \to q), \qquad S = \left\lbrace\ \text{sub}\ p : \dot{TE}(p) > \dot{TE}(\text{starter}(p))\ \right\rbrace$$
 
@@ -59,12 +62,12 @@ $$\Psi_A(\dot{VI}) = I\left(\dot{VI}_t;\, \dot{VI}_{t'}\right) - \sum_{i \in S} 
 | `data_loading.py` | SkillCorner 轨迹 → GVRNN npz 导出（含 `--player-ids` 定制节点集） |
 | `run_player_mte.py` | 球员间成对 TE 全量计算 |
 | `run_player_te.py` | 底层 TE 运行器（窗口/掩码/冻结变换/代理） |
-| `run_subs_te.py` | 替补/被替补球员的带权成对转移熵（代码标识 `dotTE`，GVRNN 计算协议，§15） |
+| `run_subs_te.py` | 替补/被替补球员的带权成对传输熵（代码标识 `dotTE`，GVRNN 计算协议，§15） |
 | `latent_phase.py` | 潜状态 × 比赛阶段联合概率（离散计数，含 live/dead 与 live_only 口径） |
 | `phase_te.py` | 球员潜链 ↔ 比赛阶段链双向 TE（离散 plug-in + 块置换代理 + BH-FDR） |
 | `latent_pair_te.py` | 10 Hz 同协议球员↔球员潜链 TE（量级对照） |
 | `te_scale_compare.py` | 三族 TE（潜链↔潜链 / 潜链↔阶段 / VI↔球员）统一尺度对照报告 |
-| `results/subs_te/` | **带权成对转移熵 / Ψ_A 管线实验的结果与分析**（`pipeline_report.md` 汇总四图、`dot_te_report.md`、`sub_gain_report.md`、`dot_te.csv`、`subs_te_summary.json`、`figures/` 4 张管线结果图，随仓库发布） |
+| `results/subs_te/` | **带权成对传输熵 / Ψ_A 管线实验的结果与分析**（`pipeline_report.md` 汇总四图、`dot_te_report.md`、`sub_gain_report.md`、`dot_te.csv`、`subs_te_summary.json`、`figures/` 4 张管线结果图，随仓库发布） |
 | `tests/` | pytest 用例（全部合成数据，`python -m pytest tests/ -q`） |
 | `docs/` | 方法学文档与图 |
 
@@ -107,7 +110,7 @@ python -m gvrnn.extract --npz artifacts/m1/tracking.npz \
 python -m run_player_mte --latents artifacts/m1/latents.npz \
     --players 0,1,2,3,4,5,6,7,8,9 --out results/m1_te.json
 
-# 5. 替补/被替补的带权成对转移熵（代码标识 dotTE；需一个含 6 名轮换球员的定制模型，如 m2）
+# 5. 替补/被替补的带权成对传输熵（代码标识 dotTE；需一个含 6 名轮换球员的定制模型，如 m2）
 python -m run_subs_te --latents artifacts/m2/latents.npz \
     --live artifacts/m2/tracking_m2.npz \
     --swap-pairs 43829,133501;163972,50951;31147,38673 \
@@ -158,7 +161,7 @@ python -m pytest tests/ -q     # 全部合成数据，无外部依赖
 ## 引用
 
 - Yeh et al. 2019, "Diverse Generation for Multi-Agent Sports Games", CVPR（GVRNN）
-- Schreiber 2000, "Measuring Information Transfer", PRL 85:461（转移熵）
+- Schreiber 2000, "Measuring Information Transfer", PRL 85:461（传输熵 TE）
 - Kraskov et al. 2004, PRE 69:066138 / Frenzel & Pompe 2007, PRL 99:204101（KSG）
-- Rosas et al. 2020, PLoS Comput Biol 16(12):e1008289（因果涌现框架）
-- Pereira et al. 2021, "The Soccer Game, Bit by Bit: An Information-Theoretic Analysis", Chaos, Solitons & Fractals 152:111356, DOI: [10.1016/j.chaos.2021.111356](https://doi.org/10.1016/j.chaos.2021.111356)（信息变差率 $\dot{VI}$ 的来源）
+- Rosas et al. 2020, PLoS Comput Biol 16(12):e1008289（因果涌现框架 $\Psi_A$）
+- Pereira et al. 2021, "The Soccer Game, Bit by Bit: An Information-Theoretic Analysis", Chaos, Solitons & Fractals 152:111356, DOI: [10.1016/j.chaos.2021.111356](https://doi.org/10.1016/j.chaos.2021.111356)（信息变差率 $\dot{VI}$）
